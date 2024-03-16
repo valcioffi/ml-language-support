@@ -1,0 +1,25 @@
+{
+  "name": "ml-language-support",
+  "displayName": "ML Language Support",
+  "description": "Language support for ML and Standard ML.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.87.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "ml",
+      "aliases": ["ML", "ml", "SML", "Standard ML"],
+      "extensions": [".ml",".sml"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "ml",
+      "scopeName": "source.ml",
+      "path": "./syntaxes/ml.tmLanguage.json"
+    }]
+  }
+}
