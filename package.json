@@ -1,14 +1,18 @@
 {
   "name": "ml-language-support",
-  "displayName": "ML Language Support",
+  "displayName": "ML/SML Language Support",
   "description": "Language support for ML and Standard ML.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.87.0"
   },
   "categories": [
     "Programming Languages"
   ],
+  "repository": "https://github.com/valcioffi/ml-language-support",
+  "icon": ".readme/icon.png",
+  "publisher": "valcioffi",
+  "main": "./extension.js",
   "contributes": {
     "languages": [{
       "id": "ml",
@@ -16,10 +20,17 @@
       "extensions": [".ml",".sml"],
       "configuration": "./language-configuration.json"
     }],
+    "commands": [{
+      "command": "extension.autoGenerateFunctionPattern",
+      "title": "Generate Function Pattern"
+    }],
     "grammars": [{
       "language": "ml",
       "scopeName": "source.ml",
       "path": "./syntaxes/ml.tmLanguage.json"
-    }]
+    }],
+    "activationEvents": [
+      "onCommand:extension.autoGenerateFunctionPattern"
+    ]
   }
 }

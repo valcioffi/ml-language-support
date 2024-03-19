@@ -1,20 +1,27 @@
-# ml-language-support README
+# ML/SML Language Support
 
-"ml-language-support" is a Visual Studio Code extension for ML and Standard ML.
+"ML/SML Language Support" is a Visual Studio Code extension for ML and Standard ML.
 
 ## Features
 
 * Syntax highlighting
+  * Surround selection for brackets
+* IntelliSense
+  * Auto-complete
+  * Auto-closing for brackets and comments 
+  * Built-in ML documentation (shift+space)
+
+### Intellisense example
+![](.readme/autocomplete.mp4)
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 0.0.1
 
 Initial release of "ml-language-support". Introduced syntax highlighting.
 
-
+### 0.0.2
+Introduced IntelliSense (auto-complete).
 ---
 
 **Enjoy!**
