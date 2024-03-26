@@ -46,7 +46,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.ml",
-			"match": "\\b(if|then|else|and|fun|use|val|exception|raise|as|case)\\b"
+			"match": "\\b(if|then|else|and|fun|use|val|exception|raise|as|case|let|in|end)\\b"
 			},
 			{
 				"name": "keyword.control.ml",
@@ -126,7 +126,7 @@
 			"patterns": [
 				{
 					"name": "variable",
-					"match": "\\b(let|val)\\s+(\\w+)\\b"
+					"match": "\\b(val)\\s+(\\w+)\\b"
 				}
 			]
 		},

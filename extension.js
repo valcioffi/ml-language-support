@@ -47,6 +47,28 @@ class Touple extends Type {
     }
 }
 
+class TypeMask extends Type {
+    constructor (element, mask) {
+        super(element.type);
+        this.element = element;
+        this.touple = element.touple;
+        this.list = element.list;
+        this.mask = mask;
+    }
+
+    toString() {
+        return this.element.toString().replace(new RegExp("'+" + 'a', 'g'), (match) => {
+            const index = match.length - 1; // get the number of ' characters
+            if (Array.isArray(this.mask)) {
+                return this.mask[index]; // replace with the corresponding element from mask
+            } else {
+                return this.mask; // replace with mask itself if it's not an array
+            }
+        });
+    }
+
+}
+
 let identifiers = {};
 
 class Identifier {
@@ -70,6 +92,41 @@ class Identifier {
         
         identifiers[this.name] = this.type_out || this.type_in;
     }
+}
+
+function parseType(value) {
+    if (value.startsWith('[') && value.endsWith(']')) {
+        const innerValue = value.slice(1, -1);
+        const regex = /,(?![^\(\[]*[\]\)])/g; // regex to match commas not inside brackets or strings
+        const firstElement = innerValue.split(regex)[0] || innerValue;
+        return new List(parseType(firstElement));
+    } else if (value.startsWith('(') && value.endsWith(')')) {
+        const innerValue = value.slice(1, -1);
+        const regex = /,(?![^\(\[]*[\]\)])/g; // regex to match commas not inside brackets or strings
+        const slices = innerValue.split(regex);
+        const parsedSlices = slices.map(slice => parseType(slice.trim()));
+        return new Touple(parsedSlices);
+    }
+     else if (/^#\S+$/.test(value)) {
+        return new Type('char');
+    } else if (/^".+"$/.test(value)) {
+        return new Type('string');
+    } else if (/^\d+$/.test(value)) {
+        return new Type('int');
+    } else if (/^\d+\.\d+$/.test(value)) {
+        return new Type('real');
+    } else if (/(true|false|=|<|>|andalso|orelse)/.test(value)) {
+        return new Type('bool');
+    } else if (/::/.test(value)) {
+        const listElement = value.split('::')[0].trim();
+        return new List([parseType(listElement)]);
+    } else if (identifiers[value] ? true : false) {
+        return new identifiers[value];
+    } else if (value.split(/[^a-zA-Z0-9_.]/)[0] != value){
+        const splitted = value.split(/[^a-zA-Z0-9_.#\[\]"]/);
+        return parseType(splitted[1]) ? new TypeMask(parseType(splitted[0]), parseType(splitted[1])) : (parseType(splitted[0] ?? new Type())); //TODO: allow touples, edit identifiers structure to understand how to extract a from input
+    }
+    return new Type();
 }
 
 //Define built-in identifiers and keywords
@@ -105,11 +162,8 @@ const sys_identifiers = [
 ]
 
 const keywords = [
-    ["fun", "fun $1 ($2) = $3;", ["name", "arguments", "function"]],
-    ["val", "val $1 = $2;", ["name", "value"]],
     ["use", "use $1;", ["path to module"]],
     ["exception", "exception $1;", ["name"]],
-    ["if", "if $1 then $2 else $3", ["condition", "function", "function"]],
     ["then", "then $1 else $2", ["function", "function"]],
     ["else", "else $1", ["function"]],
     ["raise", "raise $1", ["exception"]],
@@ -218,6 +272,48 @@ function activate(context) {
         }
     }
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider('ml', snippet_provider, '|'));
+    
+     
+    //User-defined variables and functions
+    let userProvider_triggerCharacters=[];
+    let userProvider = {
+        provideCompletionItems(document, position, token, context) {
+            let text = document.getText(new vscode.Range(new vscode.Position(0, 0), position));
+            let variablePattern = /val\s+(\w+)\s*(=\s*(.*?)\s*;)?/g;
+            let functionPattern = /fun\s+(\w+)\s*\((.*?)\)\s*=\s*(.*?)\s*;/gs;
+            let match;
+            let completionItems = [];
+            while ((match = variablePattern.exec(text)) !== null) {
+                let variableName = match[1];
+                let variableValue = match[3] || '';
+                let completionItem = new vscode.CompletionItem(this.name, vscode.CompletionItemKind.Variable);
+                completionItem.label = variableName;
+                completionItem.documentation = "User-defined variable";
+                completionItem.detail = parseDetail(new Identifier(variableName, new parseType(variableValue), null, "", "variable", variableValue));
+                completionItems.push(completionItem);
+            }
+            while ((match = functionPattern.exec(text)) !== null) {
+                const functionName = match[1];
+                const functionParams = match[2];
+                const functionValue = match[3];
+ 
+                let functionType = new Type();
+                functionValue.split('|').forEach(pattern => {
+                    functionType=parseDetail(pattern.substring(pattern.indexOf('=')+1)[1]??pattern??'')??new Type();
+                })
+
+
+                let completionItem = new vscode.CompletionItem(this.name, vscode.CompletionItemKind.Function);
+                completionItem.label = functionName;
+                completionItem.documentation = "User-defined function";
+                completionItem.detail =parseDetail(new Identifier(functionName, parseType(functionParams), parseType(functionValue), "", "function", functionValue))
+                completionItems.push(completionItem);
+            }
+            return completionItems;
+        }
+    };
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider('ml', userProvider, ...userProvider_triggerCharacters));
+
 }
 
 exports.activate = activate;

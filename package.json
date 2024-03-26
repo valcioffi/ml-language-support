@@ -1,36 +1,40 @@
 {
   "name": "ml-language-support",
+  "version": "0.0.3",
+  "publisher": "valcioffi",
+  "engines": {
+    "vscode": "^0.10.1"
+  },
+  "license": "GPL-3.0-only",
   "displayName": "ML/SML Language Support",
   "description": "Language support for ML and Standard ML.",
-  "version": "0.0.2",
-  "engines": {
-    "vscode": "^1.87.0"
-  },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Snippets",
+    "Visualization"
   ],
-  "repository": "https://github.com/valcioffi/ml-language-support",
-  "icon": ".readme/icon.png",
-  "publisher": "valcioffi",
+  "keywords": ["ML", "SML", "language", "syntax", "highlight"],
+  "preview" : true,
   "main": "./extension.js",
   "contributes": {
+    "grammars": [{
+      "language": "ml",
+      "scopeName": "source.ml",
+      "path": "./syntaxes/ml.tmLanguage.json"
+    }],
     "languages": [{
       "id": "ml",
       "aliases": ["ML", "ml", "SML", "Standard ML"],
       "extensions": [".ml",".sml"],
       "configuration": "./language-configuration.json"
     }],
-    "commands": [{
-      "command": "extension.autoGenerateFunctionPattern",
-      "title": "Generate Function Pattern"
-    }],
-    "grammars": [{
-      "language": "ml",
-      "scopeName": "source.ml",
-      "path": "./syntaxes/ml.tmLanguage.json"
-    }],
-    "activationEvents": [
-      "onCommand:extension.autoGenerateFunctionPattern"
+    "snippets": [
+      {
+        "language": "ml",
+        "path": "./syntaxes/ml-snippets.json"
+      }
     ]
-  }
+  },
+  "repository": "https://github.com/valcioffi/ml-language-support",
+  "icon": ".readme/icon.png"
 }
